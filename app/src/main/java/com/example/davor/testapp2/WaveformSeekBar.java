@@ -1,19 +1,16 @@
 package com.example.davor.testapp2;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.SeekBar;
 
-import com.library1.WavFileTmp;
+import com.library1.WavFile;
 import com.library1.WavFileException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
@@ -22,11 +19,7 @@ import java.util.Vector;
  * Created by davor on 7/4/14.
  */
 public class WaveformSeekBar extends SeekBar {
-    private static final String LOG_TAG = WaveformSeekBar.class.getName();
     public static final int READ_FRAME_COUNT = 100;
-    private int graphCol, labelCol;
-    private String graphLabel;
-    private int audioLenght = 60;
     private Vector<Float> yAxis = new Vector<Float>();
     private int numOfPoints = 1000;
     private boolean firstDraw = true;
@@ -44,6 +37,7 @@ public class WaveformSeekBar extends SeekBar {
     }
 
 
+    //calculating yaxis points
     private class AsyncTask1 extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -138,6 +132,7 @@ public class WaveformSeekBar extends SeekBar {
     }   //End of OnDraw
 
 
+    //draw a path
     private void drawPath(Path path, int color, Paint paintPath, Canvas canvas){
         path.close();
         paintPath.setColor(color);
@@ -149,7 +144,7 @@ public class WaveformSeekBar extends SeekBar {
     private void readWavFile() throws IOException, WavFileException {
 
         // Open the wav file specified as the first argument
-        WavFileTmp wavFile = WavFileTmp.openWavFile(inputStream);
+        WavFile wavFile = WavFile.openWavFile(inputStream);
 
         // Get the number of audio channels in the wav file
         int numChannels = wavFile.getNumChannels();
