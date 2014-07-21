@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="WaveformSeekBar">
+        <attr name="showText" format="boolean" />
+        <attr name="graphColor" format="color" />
+        <attr name="labelColor" format="color" />
+        <attr name="graphLabel" format="string" />
+        <attr name="labelPosition" format="enum">
+            <enum name="left" value="0" />
+            <enum name="right" value="1" />
+        </attr>
+    </declare-styleable>
+
+</resources>
