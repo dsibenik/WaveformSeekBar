@@ -2,9 +2,11 @@ package com.example.davor.testapp2;
 
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.EventLog;
@@ -19,8 +21,11 @@ import android.widget.TextView;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 
 public class Main extends Activity {
@@ -55,8 +60,6 @@ public class Main extends Activity {
             updatePosition();
         }
     };
-
-
 
 
 
@@ -104,9 +107,11 @@ public class Main extends Activity {
         //seekbar = (SeekBar)findViewById(R.id.seekbar2);
 
         seekbar = (WaveformSeekBar)findViewById(R.id.graph1);
-
-
-        seekbar.getContext1(this);
+        try {
+            seekbar.setInputStream(this.getAssets().open("audio.wav"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         playButton = (ImageButton)findViewById(R.id.play);
         playButton.setOnClickListener(new View.OnClickListener() {
@@ -365,6 +370,23 @@ public class Main extends Activity {
 
     public void blabla() {
 
+    }
+
+
+
+
+
+    public static void copyFdToFile(FileDescriptor src, File dst) throws IOException {
+        FileChannel inChannel = new FileInputStream(src).getChannel();
+        FileChannel outChannel = new FileOutputStream(dst).getChannel();
+        try {
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+        } finally {
+            if (inChannel != null)
+                inChannel.close();
+            if (outChannel != null)
+                outChannel.close();
+        }
     }
 
 }

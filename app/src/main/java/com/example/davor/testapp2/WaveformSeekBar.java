@@ -14,7 +14,6 @@ import com.library1.WavFileTmp;
 import com.library1.WavFileException;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Vector;
@@ -34,51 +33,23 @@ public class WaveformSeekBar extends SeekBar {
 
     public WaveformSeekBar(Context context, AttributeSet attrs) {
         super(context, attrs);
-
-
-        TypedArray a = context.getTheme().obtainStyledAttributes(
-                attrs,
-                R.styleable.WaveformSeekBar,
-                0, 0);
-
-        try {
-            //mShowText = a.getBoolean(R.styleable.GraphView_showText, false);
-            //mTextPos = a.getInteger(R.styleable.GraphView_labelPosition, 0);
-            graphCol = a.getInteger(R.styleable.WaveformSeekBar_graphColor, 0);
-            labelCol = a.getInteger(R.styleable.WaveformSeekBar_labelColor, 0);
-            graphLabel = a.getString(R.styleable.WaveformSeekBar_graphLabel);
-
-        } finally {
-            a.recycle();
-        }
     }
 
 
-//    private File file;
-//
-//    public void setFile(File file) {
-//        this.file = file;
-//        invalidate();
-//    }
+    private InputStream inputStream;
 
-
-    private Context context;
-    public void getContext1(Context context){
-        this.context = context;
+    public void setInputStream(InputStream intStream) {
+        this.inputStream = intStream;
+        invalidate();
     }
-//    private void setFile1() {
-//        file = new File(context.getExternalFilesDir(null), "audio.wav");
-//        invalidate();
-//    }
 
 
     private class AsyncTask1 extends AsyncTask<Void, Void, Void> {
 
-
         @Override
         protected Void doInBackground(Void[] params) {
             try {
-                readWavFile(context);
+                readWavFile();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (WavFileException e) {
@@ -102,95 +73,83 @@ public class WaveformSeekBar extends SeekBar {
 
         numOfPoints = this.getMeasuredWidth();
 
-        float clickedX = 0;
-        float closestpoint = 0;
-        float x;
-        int i = 0;
-        int viewWidthHalf = this.getMeasuredWidth() / 2;
+        float clickedX;
+        float closestPoint = 0;
+        float xAxis = 0;
         int viewHeightHalf = this.getMeasuredHeight() / 2;
 
+        //getting x-axis of the clicked point
         clickedX = (float) (this.getMeasuredWidth() * ((double) getProgress() / getMax()));
 
+        //path paint settings
         Paint paintPath = new Paint();
         Path path = new Path();
         paintPath.setStyle(Paint.Style.STROKE);
         paintPath.setAntiAlias(true);
 
-        //Paint graphPaint = new Paint();
-        //graphPaint.setStyle(Paint.Style.FILL);
-        //graphPaint.setColor(Color.parseColor("#B9D770")); //green
-        //graphPaint.setColor(0xff000000); //black
-        //graphPaint.setColor(0xcc00ffff); //semitransp black
-        //graphPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        //canvas.drawRect(0, 0, 2 * viewWidthHalf, 2 * viewHeightHalf, graphPaint);
-
-//        graphPaint.setColor(labelCol);
-//        graphPaint.setTextAlign(Paint.Align.CENTER);
-//        graphPaint.setTextSize(50);
-//        canvas.drawText( ((double)getProgress()/getMax())+"", viewWidthHalf, viewHeightHalf, graphPaint );
 
 
         if (firstDraw == true) {
-            firstDraw = false;
 
+            firstDraw = false;
+            //calcualting yAxis points
             new AsyncTask1().execute();
 
         } else {
-            float k = clickedX;
-            for (float j = 0; j <= numOfPoints; j += 1)
-                if (Math.abs(j - k) < Math.abs(closestpoint - k)) closestpoint = j;
+            //drawing graphs depending on the clicked point (clickedX)
 
-            for (x = 0, i = 0; x <= closestpoint; x += 1, i++) {
+            
+            //closest int - possible optimisations floor or casting to int, but isn't as accurate
+            for (float j = 0; j <= numOfPoints; j += 1)
+                if (Math.abs(j - clickedX) < Math.abs(closestPoint - clickedX)) closestPoint = j;
+
+            int i = 0;
+            
+            //drawing the first part of the graph in white
+            for ( i = 0; xAxis <= closestPoint; xAxis += 1, i++) {
                 if (i >= yAxis.size()) break;
 
                 if (yAxis.get(i) != 0) {
-                    path.moveTo(x, viewHeightHalf - (yAxis.get(i)));
-                    path.lineTo(x, viewHeightHalf + (yAxis.get(i)));
+                    path.moveTo(xAxis, viewHeightHalf - (yAxis.get(i)));
+                    path.lineTo(xAxis, viewHeightHalf + (yAxis.get(i)));
                 } else {
-                    path.moveTo(x, (float) (viewHeightHalf * 1.01));
-                    path.lineTo(x, (float) (viewHeightHalf * 0.99));
+                    path.moveTo(xAxis, (float) (viewHeightHalf * 1.01));
+                    path.lineTo(xAxis, (float) (viewHeightHalf * 0.99));
                 }
             }
-            path.close();
-            paintPath.setColor(0xffffffff);
-            canvas.drawPath(path, paintPath);
-            path.reset();
-        }
+            drawPath(path, 0xffffffff, paintPath, canvas);
 
-        if (i != 0) i--;
-        for (x = closestpoint; x <= numOfPoints; x += 1, i++) {
-            if (i >= yAxis.size()) break;
+            //drawing the rest of the graph in transparent white, continuing with the i variable
+            for (xAxis = closestPoint; xAxis <= numOfPoints; xAxis += 1, i++) {
+                if (i >= yAxis.size()) break;
 
-            if (yAxis.get(i) != 0) {
-                path.moveTo(x, viewHeightHalf - (yAxis.get(i)));
-                path.lineTo(x, viewHeightHalf + (yAxis.get(i)));
-            } else {
-                path.moveTo(x, (float) (viewHeightHalf * 1.01));
-                path.lineTo(x, (float) (viewHeightHalf * 0.99));
+                if (yAxis.get(i) != 0) {
+                    path.moveTo(xAxis, viewHeightHalf - (yAxis.get(i)));
+                    path.lineTo(xAxis, viewHeightHalf + (yAxis.get(i)));
+                } else {
+                    path.moveTo(xAxis, (float) (viewHeightHalf * 1.01));
+                    path.lineTo(xAxis, (float) (viewHeightHalf * 0.99));
+                }
             }
+            drawPath(path, 0x88ffffff, paintPath, canvas);
+            
         }
-        path.close();
-        paintPath.setColor(0x88ffffff);
-        canvas.drawPath(path, paintPath);
-        path.reset();
+
     }   //End of OnDraw
 
 
-    private void readWavFile(Context contextMain) throws IOException, WavFileException {
+    private void drawPath(Path path, int color, Paint paintPath, Canvas canvas){
+        path.close();
+        paintPath.setColor(color);
+        canvas.drawPath(path, paintPath);
+        path.reset();
+    }
 
-        //String file = "res/raw/test.txt";
-        //InputStream in = this.getClass().getClassLoader().getResourceAsStream(file);
-        FileInputStream in;
-        in = contextMain.getAssets().open("audio.wav");
-        contextMain.getAssets().
-        File file2 = new File("assets/audio.wav");
-        File testfile = new File(contextMain.getAssets().);
-        //in = contextMain.getClass().getClassLoader().getResources("/src/main/assets/audio.wav"); //dobijem input stream
 
-        long startms = System.currentTimeMillis();
+    private void readWavFile() throws IOException, WavFileException {
 
         // Open the wav file specified as the first argument
-        WavFileTmp wavFile = WavFileTmp.openWavFile(audioFile);
+        WavFileTmp wavFile = WavFileTmp.openWavFile(inputStream);
 
         // Get the number of audio channels in the wav file
         int numChannels = wavFile.getNumChannels();
@@ -203,12 +162,9 @@ public class WaveformSeekBar extends SeekBar {
 
 
         double avrg = 0;
-        int k = 0;
-        int j = 0;
+        int overallCounter = 0;
+        int pointsInAvrg = 0;
         double max = Double.MIN_VALUE;
-        double min = Double.MAX_VALUE;
-
-        double minLoc = Double.MAX_VALUE;
         double maxLoc = Double.MIN_VALUE;
 
         do {
@@ -220,47 +176,43 @@ public class WaveformSeekBar extends SeekBar {
             // Loop through frames and look for minimum and maximum value
             if (framesRead != 1) {
 
-                for (int s = 0; s < framesRead * numChannels; s++) {
-
+                for (int s = 0; s < framesRead * numChannels; s+=1) {
                     if (buffer[s] > maxLoc) maxLoc = buffer[s];
-                    if (buffer[s] < minLoc) minLoc = buffer[s]; //does nothing
 
 
                     //get max out of every 256
-                    if (k % 256 == 0) {
+                    if (overallCounter % 256 == 0) {
                         avrg += Math.abs(maxLoc);
                         maxLoc = Double.MIN_VALUE;
-                        j++;
-
+                        pointsInAvrg++;
                     }
 
                     //average of maximums from samplesPerPixel
-                    if (k % samplesPerPixel == 0) {
-                        yAxis.add((float) (avrg / j));
-                        if ( (avrg / j) > max) max =  (avrg / j);
-
-                        j = 0;
-                        avrg = 0;
+                    if (overallCounter % samplesPerPixel == 0) {
+                        if( pointsInAvrg == 0 ) yAxis.add( (float) 0 );
+                        else {
+                            yAxis.add( (float)(avrg / pointsInAvrg) );
+                            if ((avrg / pointsInAvrg) > max) max = (avrg / pointsInAvrg);
+                            pointsInAvrg = 0;
+                            avrg = 0;
+                        }
                     }
 
-                    k++;
+                    overallCounter++;
                 }
             }
 
         } while (framesRead != 0);
 
-        Log.e(" min i max su ", min + " // " + max);
-
+        //ratio relative to the screensize and padding
         double ratio = ((this.getMeasuredHeight() / 2) - getPaddingTop() - getPaddingBottom()/max);
 
-        for (k = 0; k < (yAxis.size() - 1); k++) {
-            yAxis.set(k, (float) (yAxis.get(k) * ratio));
-        }
-        Log.e(LOG_TAG, "" + (System.currentTimeMillis() - startms) + " .. " + 0);
+        //normalizing the values relative to the ratio
+        for (overallCounter = 0; overallCounter < yAxis.size(); overallCounter++)
+            yAxis.set(overallCounter, (float) ( yAxis.get(overallCounter) * ratio) );
 
         // Close the wavFile
         wavFile.close();
-
     }
 
 }
