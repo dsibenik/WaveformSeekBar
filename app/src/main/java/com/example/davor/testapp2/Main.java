@@ -44,7 +44,6 @@ public class Main extends Activity {
     private boolean isMoveingSeekBar = false;
 
 
-
     private final Handler handler = new Handler();
 
     private final Runnable updatePositionRunnable = new Runnable() {
@@ -54,47 +53,42 @@ public class Main extends Activity {
     };
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        seekbar = (WaveformSeekBar)findViewById(R.id.graph1);
+        seekbar = (WaveformSeekBar) findViewById(R.id.graph1);
         try {
             seekbar.setInputStream(this.getAssets().open("audio.wav"));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        playButton = (ImageButton)findViewById(R.id.play);
+        playButton = (ImageButton) findViewById(R.id.play);
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(player.isPlaying())
-                {
+                if (player.isPlaying()) {
                     handler.removeCallbacks(updatePositionRunnable);
                     player.pause();
                     playButton.setImageResource(android.R.drawable.ic_media_play);
-                }
-                else
-                {
-                    if(isStarted)
-                    {
+                } else {
+                    if (isStarted) {
                         player.start();
                         playButton.setImageResource(android.R.drawable.ic_media_pause);
 
                         updatePosition();
-                    }
-                    else
-                    {
+                    } else {
                         startPlay(currentFile);
                     }
                 }
             }
         });
-        prevButton = (ImageButton)findViewById(R.id.prev);
-        nextButton = (ImageButton)findViewById(R.id.next);
+
+
+        prevButton = (ImageButton) findViewById(R.id.prev);
+        nextButton = (ImageButton) findViewById(R.id.next);
 
         player = new MediaPlayer();
 
@@ -104,10 +98,8 @@ public class Main extends Activity {
 
         Cursor cursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
 
-        if(null != cursor)
-        {
+        if (null != cursor) {
             cursor.moveToFirst();
-
 
 
             playButton.setOnClickListener(onButtonClick);
@@ -115,7 +107,6 @@ public class Main extends Activity {
             prevButton.setOnClickListener(onButtonClick);
         }
     }
-
 
 
     @Override
@@ -145,7 +136,7 @@ public class Main extends Activity {
             e.printStackTrace();
         }
         try {
-            player.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+            player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -180,7 +171,7 @@ public class Main extends Activity {
         isStarted = false;
     }
 
-    private void updatePosition(){
+    private void updatePosition() {
         handler.removeCallbacks(updatePositionRunnable);
 
         seekbar.setProgress(player.getCurrentPosition());
@@ -189,43 +180,33 @@ public class Main extends Activity {
     }
 
 
-
     private View.OnClickListener onButtonClick = new View.OnClickListener() {
 
         @Override
         public void onClick(View v) {
-            switch(v.getId())
-            {
-                case R.id.play:
-                {
-                    if(player.isPlaying())
-                    {
+            switch (v.getId()) {
+                case R.id.play: {
+                    if (player.isPlaying()) {
                         handler.removeCallbacks(updatePositionRunnable);
                         player.pause();
                         playButton.setImageResource(android.R.drawable.ic_media_play);
-                    }
-                    else
-                    {
-                        if(isStarted)
-                        {
+                    } else {
+                        if (isStarted) {
                             player.start();
                             playButton.setImageResource(android.R.drawable.ic_media_pause);
 
                             updatePosition();
-                        }
-                        else
-                        {
+                        } else {
                             startPlay(currentFile);
                         }
                     }
 
                     break;
                 }
-                case R.id.next:
-                {
+                case R.id.next: {
                     int seekto = player.getCurrentPosition() + STEP_VALUE;
 
-                    if(seekto > player.getDuration())
+                    if (seekto > player.getDuration())
                         seekto = player.getDuration();
 
                     player.pause();
@@ -234,11 +215,10 @@ public class Main extends Activity {
 
                     break;
                 }
-                case R.id.prev:
-                {
+                case R.id.prev: {
                     int seekto = player.getCurrentPosition() - STEP_VALUE;
 
-                    if(seekto < 0)
+                    if (seekto < 0)
                         seekto = 0;
 
                     player.pause();
@@ -280,15 +260,12 @@ public class Main extends Activity {
         }
 
         @Override
-        public void onProgressChanged(SeekBar seekBar, int progress,boolean fromUser) {
-            if(isMoveingSeekBar)
-            {
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (isMoveingSeekBar) {
                 player.seekTo(progress);
             }
         }
     };
-
-
 
 
     @Override
@@ -309,7 +286,6 @@ public class Main extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
 
 }

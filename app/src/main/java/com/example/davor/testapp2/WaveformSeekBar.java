@@ -69,7 +69,6 @@ public class WaveformSeekBar extends SeekBar {
 
         float clickedX;
         int closestPoint = 0;
-        float xAxis = 0;
 
         //getting x-axis of the clicked point
         clickedX = (float) (this.getMeasuredWidth() * ((double) getProgress() / getMax()));
@@ -78,7 +77,6 @@ public class WaveformSeekBar extends SeekBar {
         Paint paintPath = new Paint();
         paintPath.setStyle(Paint.Style.STROKE);
         paintPath.setAntiAlias(true);
-
 
 
         if (firstDraw == true) {
@@ -95,10 +93,10 @@ public class WaveformSeekBar extends SeekBar {
                 if (Math.abs(j - clickedX) < Math.abs(closestPoint - clickedX)) closestPoint = j;
 
             //draw from 0 to clickedX
-            int i = drawPath( 0, closestPoint, 0xffffffff, paintPath, canvas);
+            int i = drawPath(0, closestPoint, 0xffffffff, paintPath, canvas);
 
             //draw from clickedX to end
-            drawPath( i, numOfPoints, 0x88ffffff, paintPath, canvas);
+            drawPath(i, numOfPoints, 0x88ffffff, paintPath, canvas);
 
         }
 
@@ -106,12 +104,13 @@ public class WaveformSeekBar extends SeekBar {
 
 
     //draw a path from start to end using yAxis array
-    private int drawPath(int start, int end, int color, Paint paintPath, Canvas canvas){
+    private int drawPath(int start, int end, int color, Paint paintPath, Canvas canvas) {
+
         Path path = new Path();
         int viewHeightHalf = this.getMeasuredHeight() / 2;
 
-        for ( ; start <= end; start += 1) {
-            if ( start >= yAxis.size()) break;
+        for (; start <= end; start += 1) {
+            if (start >= yAxis.size()) break;
 
             if (yAxis.get(start) != 0) {
                 path.moveTo(start, viewHeightHalf - (yAxis.get(start)));
@@ -161,7 +160,7 @@ public class WaveformSeekBar extends SeekBar {
             // Loop through frames and store yAxis values
             if (framesRead != 1) {
 
-                for (int s = 0; s < framesRead * numChannels; s+=1) {
+                for (int s = 0; s < framesRead * numChannels; s += 1) {
                     if (buffer[s] > maxLoc) maxLoc = buffer[s];
 
 
@@ -175,13 +174,13 @@ public class WaveformSeekBar extends SeekBar {
                     //average of maximums from samplesPerPixel
                     if (overallCounter % samplesPerPixel == 0) {
 
-                        if( pointsInAvrg == 0 )
-                            yAxis.add( (float) 0 );
+                        if (pointsInAvrg == 0)
+                            yAxis.add((float) 0);
 
                         else {
-                            yPoint = (float)(avrg / pointsInAvrg);
-                            yAxis.add( yPoint );
-                            if ( yPoint > max) max = (yPoint);
+                            yPoint = (float) (avrg / pointsInAvrg);
+                            yAxis.add(yPoint);
+                            if (yPoint > max) max = (yPoint);
                             pointsInAvrg = 0;
                             avrg = 0;
                         }
@@ -194,11 +193,11 @@ public class WaveformSeekBar extends SeekBar {
         } while (framesRead != 0);
 
         //ratio relative to the screensize and padding
-        double ratio = ((this.getMeasuredHeight() / 2) - getPaddingTop() - getPaddingBottom()/max);
+        double ratio = ((this.getMeasuredHeight() / 2) - getPaddingTop() - getPaddingBottom() / max);
 
         //normalizing the values relative to the ratio
         for (overallCounter = 0; overallCounter < yAxis.size(); overallCounter++)
-            yAxis.set( overallCounter, (float) ( yAxis.get(overallCounter) * ratio) );
+            yAxis.set(overallCounter, (float) (yAxis.get(overallCounter) * ratio));
 
         // Close the wavFile
         wavFile.close();
