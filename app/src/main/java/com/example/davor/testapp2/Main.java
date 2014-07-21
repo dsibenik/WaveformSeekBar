@@ -2,35 +2,23 @@ package com.example.davor.testapp2;
 
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
-import android.util.EventLog;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
-import android.widget.TextView;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 
 
 public class Main extends Activity {
 
-    private static final int UPDATE_FREQUENCY = 20;
+    private static final int UPDATE_FREQUENCY_MS = 5;
     private static final int STEP_VALUE = 4000;
 
     private WaveformSeekBar seekbar = null;
@@ -60,7 +48,7 @@ public class Main extends Activity {
 
         seekbar = (WaveformSeekBar) findViewById(R.id.graph1);
         try {
-            seekbar.setInputStream(this.getAssets().open("audio.wav"));
+            seekbar.setAudio(this.getAssets().open("audio.wav"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -176,7 +164,7 @@ public class Main extends Activity {
 
         seekbar.setProgress(player.getCurrentPosition());
 
-        handler.postDelayed(updatePositionRunnable, UPDATE_FREQUENCY);
+        handler.postDelayed(updatePositionRunnable, UPDATE_FREQUENCY_MS);
     }
 
 

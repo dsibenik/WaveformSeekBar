@@ -1,7 +1,9 @@
 package com.example.davor.testapp2;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.AsyncTask;
@@ -19,26 +21,72 @@ import java.util.Vector;
  * Created by davor on 7/4/14.
  */
 public class WaveformSeekBar extends SeekBar {
+
     public static final int READ_FRAME_COUNT = 100;
+
+    private InputStream inputStream;
     private Vector<Float> yAxis = new Vector<Float>();
-    private int numOfPoints = 1000;
+    private int numOfPoints;
     private boolean firstDraw = true;
+    private int activeColor;
+    private int inactiveColor;
+    private int transparencyAtrb;
 
     public WaveformSeekBar(Context context, AttributeSet attrs) {
         super(context, attrs);
+        initAttributes(context, attrs);
+    }
+
+    public WaveformSeekBar(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        initAttributes(context, attrs);
+    }
+
+    private void initAttributes(Context context, AttributeSet attrs) {
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.WaveformSeekBar,
+                0, 0);
+
+        try {
+            activeColor = a.getInteger(R.styleable.WaveformSeekBar_activeLineColor, 0);
+            inactiveColor = a.getInteger(R.styleable.WaveformSeekBar_inactiveLineColor, 0);
+            transparencyAtrb = a.getInteger(R.styleable.WaveformSeekBar_inactiveLineColorAlpha, 0);
+
+            if( transparencyAtrb > 100 ){
+                transparencyAtrb = 255;
+            }else {
+                transparencyAtrb = (int) ((transparencyAtrb/100.0)*(255));
+            }
+
+        } finally {
+            a.recycle();
+        }
+
+        if( inactiveColor == 0 && transparencyAtrb == 0 ) {
+            inactiveColor = adjustAlpha(activeColor, 200);
+        } else if ( inactiveColor == 0 ) {
+            inactiveColor = adjustAlpha(activeColor, transparencyAtrb);
+        } else {
+            inactiveColor = adjustAlpha(inactiveColor, transparencyAtrb);
+        }
+    }
+
+    public int adjustAlpha(int color, float factor) {
+        int alpha = Math.round(Color.alpha(color) * factor);
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        return Color.argb(alpha, red, green, blue);
     }
 
 
-    private InputStream inputStream;
-
-    public void setInputStream(InputStream intStream) {
+    public void setAudio(InputStream intStream) {
         this.inputStream = intStream;
         invalidate();
     }
 
-
-    //calculating yaxis points
-    private class AsyncTask1 extends AsyncTask<Void, Void, Void> {
+    private class CalculateYAxisPoints extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void[] params) {
@@ -61,50 +109,49 @@ public class WaveformSeekBar extends SeekBar {
         }
     }
 
-
     @Override
     protected void onDraw(Canvas canvas) {
-
-        numOfPoints = this.getMeasuredWidth();
-
-        float clickedX;
-        int closestPoint = 0;
+        numOfPoints = getMeasuredWidth();
 
         //getting x-axis of the clicked point
-        clickedX = (float) (this.getMeasuredWidth() * ((double) getProgress() / getMax()));
+        float clickedX = (float) (getMeasuredWidth() * ((double) getProgress() / getMax()));
 
-        //path paint settings
-        Paint paintPath = new Paint();
-        paintPath.setStyle(Paint.Style.STROKE);
-        paintPath.setAntiAlias(true);
-
-
-        if (firstDraw == true) {
-
+        if (firstDraw) {
             firstDraw = false;
-            //calcualting yAxis points
-            new AsyncTask1().execute();
-
+            new CalculateYAxisPoints().execute();
         } else {
+            Paint paintPath = new Paint();
+            paintPath.setStyle(Paint.Style.STROKE);
+            paintPath.setAntiAlias(true);
+
             //drawing graphs depending on the clicked point (clickedX)
+            int closestPoint = 0;
 
             //closest int - possible optimisations floor or casting to int, but isn't as accurate
-            for (int j = 0; j <= numOfPoints; j += 1)
+            for (int j = 0; j <= getMeasuredWidth(); j += 1)
                 if (Math.abs(j - clickedX) < Math.abs(closestPoint - clickedX)) closestPoint = j;
 
             //draw from 0 to clickedX
-            int i = drawPath(0, closestPoint, 0xffffffff, paintPath, canvas);
+            drawPath(0, closestPoint, activeColor, paintPath, canvas);
 
             //draw from clickedX to end
-            drawPath(i, numOfPoints, 0x88ffffff, paintPath, canvas);
+            drawPath(closestPoint, getMeasuredWidth(), inactiveColor, paintPath, canvas);
 
         }
 
     }   //end of onDraw
 
 
-    //draw a path from start to end using yAxis array
-    private int drawPath(int start, int end, int color, Paint paintPath, Canvas canvas) {
+    /**
+     * Draw a path from start to end using yAxis array.
+     *
+     * @param start
+     * @param end
+     * @param color
+     * @param paintPath
+     * @param canvas
+     */
+    private void drawPath(int start, int end, int color, Paint paintPath, Canvas canvas) {
 
         Path path = new Path();
         int viewHeightHalf = this.getMeasuredHeight() / 2;
@@ -126,8 +173,6 @@ public class WaveformSeekBar extends SeekBar {
         paintPath.setColor(color);
         canvas.drawPath(path, paintPath);
         path.reset();
-
-        return end;
     }
 
 
@@ -143,7 +188,7 @@ public class WaveformSeekBar extends SeekBar {
         double[] buffer = new double[READ_FRAME_COUNT * numChannels];
 
         int framesRead;
-        int samplesPerPixel = (int) (wavFile.getNumFrames() * numChannels) / (numOfPoints);
+        int samplesPerPixel = (int) (wavFile.getNumFrames() * numChannels) / (getMeasuredWidth());
 
 
         double avrg = 0;
@@ -176,7 +221,6 @@ public class WaveformSeekBar extends SeekBar {
 
                         if (pointsInAvrg == 0)
                             yAxis.add((float) 0);
-
                         else {
                             yPoint = (float) (avrg / pointsInAvrg);
                             yAxis.add(yPoint);
