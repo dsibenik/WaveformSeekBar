@@ -60,15 +60,6 @@
         android:layout_alignParentStart="true"
         android:layout_marginLeft="41dp" />
 
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/listView2"
-        android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/play"
-        android:layout_alignEnd="@+id/play"
-        android:layout_above="@id/graph1">
-        </ListView>
 
 
 </RelativeLayout>

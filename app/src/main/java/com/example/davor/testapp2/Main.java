@@ -29,16 +29,10 @@ import java.nio.channels.FileChannel;
 
 
 public class Main extends Activity {
-    private TextView textView;
-    private EventLog.Event event;
-    protected int count;
-    MediaPlayer mediaPlayer = new MediaPlayer();
 
     private static final int UPDATE_FREQUENCY = 20;
     private static final int STEP_VALUE = 4000;
 
-    //private MediaCursorAdapter mediaAdapter = null;
-    private TextView selelctedFile = null;
     private WaveformSeekBar seekbar = null;
     private MediaPlayer player = null;
     private ImageButton playButton = null;
@@ -48,8 +42,6 @@ public class Main extends Activity {
     private boolean isStarted = true;
     private String currentFile = "testfile";
     private boolean isMoveingSeekBar = false;
-    WaveformSeekBar seekbar2;
-
 
 
 
@@ -67,44 +59,6 @@ public class Main extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        /*AssetFileDescriptor afd = null;
-        try {
-            afd = getAssets().openFd("audio.wav");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            mediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mediaPlayer.start();*/
-
-
-        //textView = (TextView) findViewById(R.id.textvju1);
-        // getExternalFilesDir
-        // /Android/data/com.example.davor,testapp2/files
-
-        // Environment.getExternalStorageDirectory()
-        // /
-
-
-        //SeekBar seekbar1 = (SeekBar) findViewById(R.id.testseekbar);
-
-
-
-
-
-
-        //selelctedFile = (TextView)findViewById(R.id.selectedfile);
-        //seekbar = (SeekBar)findViewById(R.id.seekbar2);
 
         seekbar = (WaveformSeekBar)findViewById(R.id.graph1);
         try {
@@ -177,7 +131,6 @@ public class Main extends Activity {
     }
 
     private void startPlay(String file) {
-        Log.i("Selected: ", file);
 
         //selelctedFile.setText(file);
         seekbar.setProgress(0);
@@ -185,7 +138,6 @@ public class Main extends Activity {
         player.stop();
         player.reset();
 
-        Log.e("main","problem1");
         AssetFileDescriptor afd = null;
         try {
             afd = getAssets().openFd("audio.wav");
@@ -332,21 +284,11 @@ public class Main extends Activity {
             if(isMoveingSeekBar)
             {
                 player.seekTo(progress);
-
-                Log.i("OnSeekBarChangeListener","onProgressChanged");
             }
         }
     };
 
 
-
-    private void copyFromAssetsToExternalFolder(String assetFileName) {
-        try {
-            IOUtils.copy(getAssets().open(assetFileName), new FileOutputStream(new File(getExternalFilesDir(null), assetFileName)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     @Override
@@ -368,25 +310,6 @@ public class Main extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void blabla() {
 
-    }
-
-
-
-
-
-    public static void copyFdToFile(FileDescriptor src, File dst) throws IOException {
-        FileChannel inChannel = new FileInputStream(src).getChannel();
-        FileChannel outChannel = new FileOutputStream(dst).getChannel();
-        try {
-            inChannel.transferTo(0, inChannel.size(), outChannel);
-        } finally {
-            if (inChannel != null)
-                inChannel.close();
-            if (outChannel != null)
-                outChannel.close();
-        }
-    }
 
 }
