@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.SeekBar;
 
 import com.library1.WavFile;

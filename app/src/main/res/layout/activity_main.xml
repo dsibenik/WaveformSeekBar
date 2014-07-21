@@ -13,9 +13,9 @@
 
     <com.example.davor.testapp2.WaveformSeekBar
         android:id="@id/graph1"
-        waveformSeekBar:activeLineColor="#000000"
-        waveformSeekBar:inactiveLineColor="#FFFFFF"
-        waveformSeekBar:inactiveLineColorAlpha="80"
+        waveformSeekBar:activeLineColor="#CC0099"
+        waveformSeekBar:inactiveLineColor="#CCFF00"
+        waveformSeekBar:inactiveLineColorAlpha="60"
 
 
         android:paddingTop="10dp"
