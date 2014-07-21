@@ -66,9 +66,9 @@ public class WaveformSeekBar extends SeekBar {
 
         if( inactiveColor == 0 && transparencyAtrb == 0 ) {
             inactiveColor = adjustAlpha(activeColor, 200);
-        } else if ( inactiveColor == 0 ) {
+        } else if ( inactiveColor == 0 && transparencyAtrb != 0) {
             inactiveColor = adjustAlpha(activeColor, transparencyAtrb);
-        } else {
+        } else if ( inactiveColor != 0 && transparencyAtrb != 0) {
             inactiveColor = adjustAlpha(inactiveColor, transparencyAtrb);
         }
     }
