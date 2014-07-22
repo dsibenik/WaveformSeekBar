@@ -27,7 +27,6 @@ public class WaveformSeekBar extends SeekBar {
 
     private InputStream inputStream;
     private Vector<Float> yAxis = new Vector<Float>();
-    private int numOfPoints;
     private boolean firstDraw = true;
     private int activeColor;
     private int inactiveColor;
@@ -112,7 +111,6 @@ public class WaveformSeekBar extends SeekBar {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        numOfPoints = getMeasuredWidth();
 
         //getting x-axis of the clicked point
         float clickedX = (float) (getMeasuredWidth() * ((double) getProgress() / getMax()));
