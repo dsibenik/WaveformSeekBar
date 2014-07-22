@@ -1,4 +1,4 @@
 WaveformSeekBar
 ===============
 
-git for WaveformSeekBar android view
+Android seekbar which gives you a visual representation (waveform) of your wav file.
