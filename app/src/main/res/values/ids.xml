@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="graph1" type="id">graph1</item>
-    <item name="textvju1" type="id">textvju1</item>
+    <item name="seekbar" type="id">seekbar</item>
 </resources>
