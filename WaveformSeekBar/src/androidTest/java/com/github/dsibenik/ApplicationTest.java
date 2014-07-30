@@ -1,4 +1,4 @@
-package com.example.davor.testapp2;
+package com.github.dsibenik;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

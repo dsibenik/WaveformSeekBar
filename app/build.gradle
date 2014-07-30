@@ -1,5 +1,9 @@
-apply plugin: 'com.android.application'
-
+apply plugin: 'android-library'
+apply plugin: 'maven'
+apply plugin: 'signing'
+group = 'com.github.dsibenik'
+archivesBaseName = "WaveformSeekBar"
+version = '1.4-SNAPSHOT'
 android {
     compileSdkVersion 19
     buildToolsVersion "20.0.0"
@@ -9,7 +13,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 19
         versionCode 1
-        versionName "1.0"
+        versionName "1.4-SNAPSHOT"
     }
     buildTypes {
         release {
@@ -19,8 +23,54 @@ android {
     }
 }
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile files('libs/musicg-1.4.2.0.jar')
-    compile files('libs/commons-io-2.4.jar')
+
+signing {
+    sign configurations.archives
 }
+
+
+
+dependencies {
+    compile 'commons-io:commons-io:2.4'
+}
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: "dsibenik", password: "445544abc")
+            }
+
+            pom.project {
+                name 'testapp2'
+                description 'Android SeekBar library, displays aplitudes of your wav file'
+                url 'http://github.com/dsibenik/waveformseekbar'
+
+                scm {
+                    url 'scm:git@github.com:GradleFx/GradleFx.git'
+                    connection 'scm:git@github.com:GradleFx/GradleFx.git'
+                    developerConnection 'scm:git@github.com:GradleFx/GradleFx.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'dsibenik'
+                        name 'Davor Šibenik'
+                    }
+                }
+            }
+        }
+    }
+}
+
