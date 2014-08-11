@@ -27,7 +27,7 @@ public class WaveformSeekBar extends SeekBar {
     public static final int READ_FRAME_COUNT = 100;
 
     private InputStream inputStream;
-    private Vector<Float> yAxis = new Vector<Float>();
+    private Vector<Float> yAxis = new Vector<Float>(0);
     private boolean firstDraw = true;
     private int activeColor;
     private int inactiveColor;
@@ -179,6 +179,8 @@ public class WaveformSeekBar extends SeekBar {
     private void readWavFile() throws IOException, WavFileException {
 
         // Open the wav file specified as the first argument
+        if( inputStream == null ) return;
+
         WavFile wavFile = WavFile.openWavFile(inputStream);
 
         // Get the number of audio channels in the wav file
@@ -232,7 +234,7 @@ public class WaveformSeekBar extends SeekBar {
         } while (framesRead != 0);
 
         //ratio relative to the screensize and padding
-        double ratio = ((this.getMeasuredHeight() / 2) - getPaddingTop() - getPaddingBottom() / max);
+        double ratio = ((this.getMeasuredHeight() / 2) - getPaddingTop() - getPaddingBottom() )/ max;
 
         //normalizing the values relative to the ratio
         for (overallCounter = 0; overallCounter < yAxis.size(); overallCounter++) {
