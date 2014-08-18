@@ -109,11 +109,11 @@ public class WaveformSeekBar extends SeekBar {
         }
     }
 
+
     @Override
     protected void onDraw(Canvas canvas) {
-
         //getting x-axis of the clicked point
-        float clickedX = (float) (getMeasuredWidth() * ((double) getProgress() / getMax()));
+        int clickedX = (int) ((getMeasuredWidth() * (double) getProgress()) / getMax());
 
         if (firstDraw) {
             firstDraw = false;
@@ -123,33 +123,24 @@ public class WaveformSeekBar extends SeekBar {
             paintPath.setStyle(Paint.Style.STROKE);
             paintPath.setAntiAlias(true);
 
-            //drawing graphs depending on the clicked point (clickedX)
-            int closestPoint = 0;
-
-            //closest int - possible optimisations floor or casting to int, but isn't as accurate
-            for (int j = 0; j <= getMeasuredWidth(); j += 1) {
-                if (Math.abs(j - clickedX) < Math.abs(closestPoint - clickedX)) closestPoint = j;
-            }
-
             //draw from 0 to clickedX
-            drawPath(0, closestPoint, activeColor, paintPath, canvas);
+            drawPath(0, clickedX, activeColor, paintPath, canvas);
 
             //draw from clickedX to end
-            drawPath(closestPoint, getMeasuredWidth(), inactiveColor, paintPath, canvas);
+            drawPath(clickedX, getMeasuredWidth(), inactiveColor, paintPath, canvas);
 
         }
-
     }   //end of onDraw
 
 
     /**
      * Draw a path from start to end using yAxis array.
      *
-     * @param start
-     * @param end
-     * @param color
-     * @param paintPath
-     * @param canvas
+     * @param start starting point of the path
+     * @param end end point of the path
+     * @param color color of the path
+     * @param paintPath paint which you want to draw the path with
+     * @param canvas canvas on which to draw
      */
     private void drawPath(int start, int end, int color, Paint paintPath, Canvas canvas) {
 
